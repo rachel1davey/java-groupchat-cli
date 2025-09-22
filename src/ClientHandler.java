@@ -31,9 +31,44 @@ public class ClientHandler implements Runnable {
     }
 
 
-    @Override
+    @Override //ran on a separate thread
     public void run() {
+        String messageFromClient;
 
+        while (socket.isConnected()) {
+            try {
+                messageFromClient = bufferedReader.readLine(); //blocking operation
+                broadcastMessage(messageFromClient);
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReader, bufferedWriter);
+                break; // when client disconnects, break out of while loop
+            }
+        }
 
+    }
+
+    public void broadcastMessage(String messageToSend) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            // for each client handler in our arraylist
+            try {
+                //broadcast to everyone but the user who sent it
+                if (!clientHandler.clientUsername.equals(clientUsername)) {
+                    //if it doesnt equal, send message to client
+                    clientHandler.bufferedWriter.write(messageToSend);
+                    //send whatever is passed to method
+                    clientHandler.bufferedWriter.newLine();
+                    //send a new line character (eq to pressing enter key)
+                    clientHandler.bufferedWriter.flush();
+                }
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReader, bufferedWriter);
+            }
+        }
+    }
+
+    public void removeClientHandler() {
+        //remove clienthandler from arraylist
+        clientHandlers.remove(this);
+        broadcastMessage("SERVER: " + clientUsername + " has left the chat!");
     }
 }
