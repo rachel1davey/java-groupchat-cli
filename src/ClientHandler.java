@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -19,7 +16,7 @@ public class ClientHandler implements Runnable {
         try {
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputSteam()));
-            this.bufferedReader = new BufferedReader(new OutputStreamWriter(socket.getInputStream()));
+            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.clientUsername = bufferedReader.readLine();
             //add client to arraylist so they can join gc
             clientHandlers.add(this);
@@ -53,7 +50,7 @@ public class ClientHandler implements Runnable {
             try {
                 //broadcast to everyone but the user who sent it
                 if (!clientHandler.clientUsername.equals(clientUsername)) {
-                    //if it doesnt equal, send message to client
+                    //if it doesn't equal, send message to client
                     clientHandler.bufferedWriter.write(messageToSend);
                     //send whatever is passed to method
                     clientHandler.bufferedWriter.newLine();
@@ -80,7 +77,7 @@ public class ClientHandler implements Runnable {
                 bufferedReader.close();
             }
             if (bufferedWriter != null) {
-                bufferedWriter.close()
+                bufferedWriter.close();
             } if (socket != null) {
                 socket.close();
             }
